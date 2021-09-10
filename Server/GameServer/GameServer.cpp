@@ -2,75 +2,58 @@
 #include "ThreadManager.h"
 #include "RefCounting.h"
 
-class Wraight : public RefCountable
+using InventoryRef = TSharedPtr<class Inventory>;
+
+class Knight
 {
 public:
-	int _hp = 150;
-	int _posX = 0;
-	int _posY = 0;
-};
-
-using WraightRef = TSharedPtr<Wraight>;
-class Missile : public RefCountable
-{
-public:
-	void SetTarget(WraightRef target)
+	Knight()
 	{
-		_target = target;
-		//target->AddRef();
+		cout << "Knight()" << endl;
 	}
 
-	bool Update()
+	~Knight()
 	{
-		if (_target == nullptr) { return true; }
-
-		int posX = _target->_posX;
-		int posY = _target->_posY;
-
-		// TODO 쫓아가기
-
-		if (_target->_hp == 0)
-		{
-			//_target->ReleaseRef();
-			_target = nullptr;
-			return true;
-		}
-
-		return false;
+		cout << "~Knight()" << endl;
 	}
-
-	WraightRef _target = nullptr;
 };
 
-
-using MissileRef = TSharedPtr<Missile>;
 
 int main()
 {
-	WraightRef wraight(new Wraight());
-	wraight->ReleaseRef();
-	MissileRef missile(new Missile());
-	missile->ReleaseRef();
+	// 1) 이미 만들어진 클래스 대상으로 사용 불가
+	// 2) 순환(Cycle) 문제
 
-	missile->SetTarget(wraight);
+	// shared_ptr
+	// weak_ptr
+	// [Knight][RefCountingBlock](2개의 정보를 따로 관리함)
 
-	// 레이스가 피격 당함
-	wraight->_hp = 0;
-	//wraight->ReleaseRef();
-	wraight = nullptr;
+	//[T*][RefCountingBlock]
+	shared_ptr<Knight> spr(new Knight());
 
-	while (true)
+	//[T*][RefCountingBlock]
+	shared_ptr<Knight> spr2 = spr;
+
+	// shared_ptr<Knight> spr(new Knight());
+	// 와 make_shared<T>의 차이점
+	// [Knight | RefCountingBlock]
+	shared_ptr<Knight> spr3 = make_shared<Knight>();
+
+	// RefCountingBlock은 어떤 정보를 가지고 있음?
+	// uses(shared), weak(weak)
+
+	weak_ptr<Knight> wpr = spr3;
+
+	bool expired = wpr.expired();
+	shared_ptr<Knight> spr4 = wpr.lock();
+	if (spr4 != nullptr)
 	{
-		if (missile)
-		{
-			if (missile->Update())
-			{
-				//missile->ReleaseRef();
-				missile = nullptr;
-			}
-		}
+
 	}
 
-	//missile->ReleaseRef();
-	missile = nullptr;
+	// RefCountingBlock은 uses, weak모두 0이어야 해제됨.
+
+	// weakPtr을 사용하면 순환참조를 해결할 수 있음.
+
+
 }
