@@ -1,8 +1,7 @@
 #include "pch.h"
 #include "ThreadManager.h"
 #include "RefCounting.h"
-
-using InventoryRef = TSharedPtr<class Inventory>;
+#include "Memory.h"
 
 class Knight
 {
@@ -12,48 +11,65 @@ public:
 		cout << "Knight()" << endl;
 	}
 
+	Knight(int32 hp) : _hp(hp)
+	{
+		cout << "Knight(hp)" << endl;
+	}
+
 	~Knight()
 	{
 		cout << "~Knight()" << endl;
 	}
+
+	//new operator overloading
+	//static void* operator new(size_t size) // static 붙이지 않아도 붙음(operator한정)
+	//{
+	//	cout << "new! " << size << endl;
+	//	void* ptr = ::malloc(size);
+	//	return ptr;
+	//}
+
+	//static void operator delete(void* ptr)
+	//{
+	//	cout << "delete!" << endl;
+	//	::free(ptr);
+	//}
+
+	int32 _hp = 100;
+	int32 _mp = false;
 };
 
+// new operator overloading (Global)
+//void* operator new(size_t size)
+//{
+//	cout << "new! " << size << endl;
+//	void* ptr = ::malloc(size);
+//	return ptr;
+//}
+//
+//void operator delete(void* ptr)
+//{
+//	cout << "delete!" << endl;
+//	::free(ptr);
+//}
+//
+//// 배열
+//void* operator new[](size_t size)
+//{
+//	cout << "new[]! " << size << endl;
+//	void* ptr = ::malloc(size);
+//	return ptr;
+//}
+//
+//void operator delete[](void* ptr)
+//{
+//	cout << "delete[]!" << endl;
+//	::free(ptr);
+//}
 
 int main()
 {
-	// 1) 이미 만들어진 클래스 대상으로 사용 불가
-	// 2) 순환(Cycle) 문제
+	Knight* knight = xnew<Knight>();
 
-	// shared_ptr
-	// weak_ptr
-	// [Knight][RefCountingBlock](2개의 정보를 따로 관리함)
-
-	//[T*][RefCountingBlock]
-	shared_ptr<Knight> spr(new Knight());
-
-	//[T*][RefCountingBlock]
-	shared_ptr<Knight> spr2 = spr;
-
-	// shared_ptr<Knight> spr(new Knight());
-	// 와 make_shared<T>의 차이점
-	// [Knight | RefCountingBlock]
-	shared_ptr<Knight> spr3 = make_shared<Knight>();
-
-	// RefCountingBlock은 어떤 정보를 가지고 있음?
-	// uses(shared), weak(weak)
-
-	weak_ptr<Knight> wpr = spr3;
-
-	bool expired = wpr.expired();
-	shared_ptr<Knight> spr4 = wpr.lock();
-	if (spr4 != nullptr)
-	{
-
-	}
-
-	// RefCountingBlock은 uses, weak모두 0이어야 해제됨.
-
-	// weakPtr을 사용하면 순환참조를 해결할 수 있음.
-
-
+	xdelete(knight);
 }
