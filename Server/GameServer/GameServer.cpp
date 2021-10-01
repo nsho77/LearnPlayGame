@@ -10,8 +10,17 @@ public:
 	int32 _hp = rand() % 1000;
 };
 
+class Monster
+{
+public:
+	int64 _id = 0;
+};
+
 int main()
 {
+	shared_ptr<Knight> k = ObjectPool<Knight>::MakeShared();
+	shared_ptr<Knight> k2 = MakeShared<Knight>();
+
 	for (int32 i = 0; i < 5; i++)
 	{
 		GThreadManager->Launch([]()
