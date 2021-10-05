@@ -4,22 +4,53 @@
 #include "Memory.h"
 #include "Allocator.h"
 
-class Knight
+using TL = TypeList<class Player, class Mage, class Knight, class Archer>;
+
+class Player
 {
 public:
-	int32 _hp = rand() % 1000;
+	Player()
+	{
+		INIT_TL(Player);
+	}
+	virtual ~Player() {  }
+
+	DECLARE_TL
 };
 
-class Monster
+class Knight : public Player
 {
 public:
-	int64 _id = 0;
+	Knight() { INIT_TL(Knight); }
+};
+
+class Mage : public Player
+{
+	Mage() { INIT_TL(Mage); }
+};
+
+class Archer : public Player
+{
+	Archer() { INIT_TL(Archer); }
 };
 
 int main()
 {
-	shared_ptr<Knight> k = ObjectPool<Knight>::MakeShared();
-	shared_ptr<Knight> k2 = MakeShared<Knight>();
+	{
+		Player* player = new Knight();
+
+		bool canCast = CanCast<Knight*>(player);
+		Knight* knight = TypeCast<Knight*>(player);
+
+		delete player;
+	}
+
+	{
+		shared_ptr<Knight> knight = MakeShared<Knight>();
+
+		shared_ptr<Player> player = TypeCast<Player>(knight);
+		bool canCast = CanCast<Player>(knight);
+	}
 
 	for (int32 i = 0; i < 5; i++)
 	{
@@ -27,12 +58,7 @@ int main()
 			{
 				while (true)
 				{
-					Knight* knight = xnew<Knight>();
-					cout << knight->_hp << endl;
 
-					this_thread::sleep_for(10ms);
-
-					xdelete(knight);
 				}
 			});
 	}
