@@ -23,7 +23,7 @@ public:
 	}
 
 protected:
-	int32 _refCount;
+	atomic<int32> _refCount;
 };
 
 /*-----------------

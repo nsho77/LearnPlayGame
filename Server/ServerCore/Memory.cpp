@@ -77,7 +77,7 @@ void* Memory::Allocate(int32 size)
 	}
 #endif
 
-    return MemoryHeader::AttchHeader(header, allocSize);
+	return MemoryHeader::AttachHeader(header, allocSize);
 }
 
 void Memory::Release(void* ptr)

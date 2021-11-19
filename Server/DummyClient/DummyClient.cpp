@@ -1,9 +1,9 @@
-#include "pch.h"
+ï»¿#include "pch.h"
 #include <iostream>
 
-#include <WinSock2.h>
-#include <MSWSock.h>
-#include <WS2tcpip.h>
+#include <winsock2.h>
+#include <mswsock.h>
+#include <ws2tcpip.h>
 #pragma comment(lib, "ws2_32.lib")
 
 void HandleError(const char* cause)
@@ -14,10 +14,8 @@ void HandleError(const char* cause)
 
 int main()
 {
-	this_thread::sleep_for(1s);
-
 	WSAData wsaData;
-	if (::WSAStartup(MAKEWORD(2, 2), &wsaData))
+	if (::WSAStartup(MAKEWORD(2, 2), &wsaData) != 0)
 		return 0;
 
 	SOCKET clientSocket = ::socket(AF_INET, SOCK_STREAM, 0);
@@ -39,20 +37,19 @@ int main()
 	{
 		if (::connect(clientSocket, (SOCKADDR*)&serverAddr, sizeof(serverAddr)) == SOCKET_ERROR)
 		{
-			// ¿ø·¡ ºí·ÏÇß¾î¾ß Çß´Âµ¥ ... ³Ê°¡ ³íºí·ÎÅ·À¸·Î ÇÏ¶ó¸ç?
+			// ì›ë˜ ë¸”ë¡í–ˆì–´ì•¼ í–ˆëŠ”ë°... ë„ˆê°€ ë…¼ë¸”ë¡œí‚¹ìœ¼ë¡œ í•˜ë¼ë©°?
 			if (::WSAGetLastError() == WSAEWOULDBLOCK)
 				continue;
-
+			// ì´ë¯¸ ì—°ê²°ëœ ìƒíƒœë¼ë©´ break
 			if (::WSAGetLastError() == WSAEISCONN)
 				break;
-
 			// Error
 			break;
 		}
 	}
 
-	cout << "Connected to Sever!" << endl;
-	
+	cout << "Connected to Server!" << endl;
+
 	char sendBuffer[100] = "Hello World";
 	WSAEVENT wsaEvent = ::WSACreateEvent();
 	WSAOVERLAPPED overlapped = {};
@@ -76,18 +73,20 @@ int main()
 				::WSAGetOverlappedResult(clientSocket, &overlapped, &sendLen, FALSE, &flags);
 			}
 			else
-				// ÁøÂ¥ ¹®Á¦ ÀÖ´Â »óÈ²
+			{
+				// ì§„ì§œ ë¬¸ì œ ìˆëŠ” ìƒí™©
 				break;
+			}
 		}
 
-		cout << "Send Data! Len = " << sizeof(sendBuffer) << endl;
+		cout << "Send Data ! Len = " << sizeof(sendBuffer) << endl;
 
 		this_thread::sleep_for(1s);
 	}
 
-	// ¼ÒÄÏ ¸®¼Ò½º ¹İÈ¯
+	// ì†Œì¼“ ë¦¬ì†ŒìŠ¤ ë°˜í™˜
 	::closesocket(clientSocket);
 
-	// À©¼Ó Á¾·á
+	// ìœˆì† ì¢…ë£Œ
 	::WSACleanup();
 }

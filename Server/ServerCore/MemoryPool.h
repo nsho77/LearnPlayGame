@@ -15,7 +15,7 @@ struct MemoryHeader : public SLIST_ENTRY
 
 	MemoryHeader(int32 size) : allocSize(size) {}
 
-	static void* AttchHeader(MemoryHeader* header, int32 size)
+	static void* AttachHeader(MemoryHeader* header, int32 size)
 	{
 		new(header)MemoryHeader(size); // placement new
 		return reinterpret_cast<void*>(++header);
