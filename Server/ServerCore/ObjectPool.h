@@ -1,5 +1,4 @@
 #pragma once
-
 #include "Types.h"
 #include "MemoryPool.h"
 
@@ -12,9 +11,9 @@ public:
 	{
 #ifdef _STOMP
 		MemoryHeader* ptr = reinterpret_cast<MemoryHeader*>(StompAllocator::Alloc(s_allocSize));
-		Type* memory = static_cast<Type*>(MemoryHeader::AttchHeader(ptr, s_allocSize));
+		Type* memory = static_cast<Type*>(MemoryHeader::AttachHeader(ptr, s_allocSize));
 #else
-		Type* memory = static_cast<Type*>(MemoryHeader::AttchHeader(s_pool.Pop(), s_allocSize));
+		Type* memory = static_cast<Type*>(MemoryHeader::AttachHeader(s_pool.Pop(), s_allocSize));
 #endif
 		new(memory)Type(forward<Args>(args)...);
 		return memory;
@@ -29,7 +28,7 @@ public:
 		s_pool.Push(MemoryHeader::DetachHeader(obj));
 #endif
 	}
-	template<typename ...Args>
+	template<typename... Args>
 	static shared_ptr<Type> MakeShared(Args&&... args)
 	{
 		shared_ptr<Type> ptr = { Pop(std::forward<Args>(args)...), Push };
